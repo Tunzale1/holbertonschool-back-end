@@ -1,7 +1,7 @@
 #!/usr/bin/python3
-
-"Module for request and API"
-
+"""
+Module for task0 about request and API
+"""
 
 import requests
 from sys import argv
