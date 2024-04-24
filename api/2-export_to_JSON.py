@@ -1,27 +1,31 @@
 #!/usr/bin/python3
-"""import"""
+"""Exporting data in json format"""
+
 import json
 import requests
-import sys
+from sys import argv
+
+
+def export_data():
+    """exporting data in the JSON"""
+    users_route = 'https://jsonplaceholder.typicode.com/users/{}'
+    todos_route = 'https://jsonplaceholder.typicode.com/todos/?userID={}'
+    users_url = users_route.format(argv[1])
+    todos_url = todos_route.format(argv[1])
+    user_data = requests.get(users_url).json()
+    task_data = requests.get(todos_url).json()
+    username = user_data.get('username')
+    tasks = []
+
+    for todo in task_data:
+        task = {'task': todo.get('title'),
+                'completed': todo.get('completed'),
+                'username': username}
+        tasks.append(task)
+
+    with open('{}.json'.format(argv[1]), 'w') as file:
+        json.dump({argv[1]: tasks}, file)
+
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print(f"missing employee id as argument")
-        sys.exit(1)
-
-    URL = "https://jsonplaceholder.typicode.com"
-    EMPLOYEE_ID = sys.argv[1]
-
-    EMPLOYEE_TODOS = requests.get(f"{URL}/users/{EMPLOYEE_ID}/todos",
-                                  params={"_expand": "user"})
-    data = EMPLOYEE_TODOS.json()
-
-    username = data[0]["user"]["username"]
-    USER_TASK = {EMPLOYEE_ID: []}
-    for task in data:
-        dic_task = {"task": task["title"], "completed": task["completed"],
-                    "username": username}
-        USER_TASK[EMPLOYEE_ID].append(dic_task)
-    fileName = f"{EMPLOYEE_ID}.json"
-    with open(fileName, "w") as file:
-        json.dump(USER_TASK, file)
+    export_data()

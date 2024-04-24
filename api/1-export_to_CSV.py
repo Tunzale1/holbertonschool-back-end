@@ -1,28 +1,27 @@
 #!/usr/bin/python3
-"""import"""
+"""Exports data in CSV  format"""
+
+
 import csv
 import requests
 import sys
 
+
+def export_data():
+    """method to export related data"""
+    user_id = sys.argv[1]
+    user = 'https://jsonplaceholder.typicode.com/users/{}'.format(user_id)
+    todos = 'https://jsonplaceholder.typicode.com/todos/?userId={}'.format(
+        user_id)
+    name = requests.get(user).json().get('username')
+    todo_requests = requests.get(todos).json()
+
+    with open('{}.csv'.format(user_id), 'w') as file:
+        for todo in todo_requests:
+            info = '"{}","{}","{}","{}"\n'.format(
+                user_id, name, todo.get('completed'), todo.get('title'))
+            file.write(info)
+
+
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print(f"missing employee id as argument")
-        sys.exit(1)
-
-    URL = "https://jsonplaceholder.typicode.com"
-    EMPLOYEE_ID = sys.argv[1]
-
-    EMPLOYEE_TODOS = requests.get(f"{URL}/users/{EMPLOYEE_ID}/todos",
-                                  params={"_expand": "user"})
-    data = EMPLOYEE_TODOS.json()
-
-    EMPLOYEE_NAME = data[0]["user"]["username"]
-    fileName = f"{EMPLOYEE_ID}.csv"
-
-    with open(fileName, "w", newline="") as file:
-        writer = csv.writer(file, quoting=csv.QUOTE_NONNUMERIC)
-        for task in data:
-            writer.writerow(
-                [EMPLOYEE_ID, EMPLOYEE_NAME, str(task["completed"]),
-                 task["title"]]
-            )
+    export_data()
