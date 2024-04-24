@@ -2,33 +2,35 @@
 """exporting data in json format"""
 
 
-import json
-import requests
+from sys import argv
+from requests import get
+from json import dump
+
+url_base = 'https://jsonplaceholder.typicode.com/users/'
 
 
-def export_data():
-    """Saving all the data to JSON file"""
-    users_route = 'https://jsonplaceholder.typicode.com/users'
-    todos_route = 'https://jsonplaceholder.typicode.com/todos/?userID={}'
-    users = requests.get(users_route).json()
-    data = {}
+def dict_of_the_dict():
+    """s"""
+    users = get(url_base).json()
+    retrieve_json = dict()
 
     for user in users:
-        user_id = user.get('id')
-        username = user.get('username')
-        todos = todos_route.format(user_id)
-        todo_request = requests.get(todos).json()
-        tasks = []
-        for todo in todo_request:
-            task = {"username": username,
-                    "task": todo.get('title'),
-                    "completed": todo.get('completed')}
-            tasks.append(task)
-        data[user_id] = tasks
+        usr_id = user['id']
+        item_data = []
+        task_users = get(url_base + str(usr_id) + '/todos/').json()
 
-    with open('todo_all_employees.json', 'w') as file:
-        json.dump(data, file)
+        for todo in task_users:
+            item_dict = {
+                'task': todo['title'],
+                'completed': todo['completed'],
+                'username': user['username']
+            }
+            item_data.append(item_dict)
+        retrieve_json[usr_id] = item_data
+
+    with open('todo_all_employees.json', 'w', encoding='utf-8') as file_json:
+        dump(retrieve_json, file_json)
 
 
-if __name__ == "__main__":
-    export_data()
+if __name__ == '__main__':
+    dict_of_the_dict()
