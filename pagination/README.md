@@ -1,3 +1,3 @@
-# 0x04. Pagination
+# Pagination
 
 ### Specializations - Web Stack programming ― Back-end
